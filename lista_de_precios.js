@@ -37,7 +37,7 @@ const listaprecios = {
     "CASA GILARDI": 390.00,
     "CASA LAMM": 390.00,
     "CASA MUSEO DE LUIS BARRAGAN": 430.00,
-    "CASA PRIETO LOPEZ (PEDREGAL)": 700.00,
+    "CASA PRIETO LOPEZ (PEDREGAL)": 700.00
 
 
 },
@@ -47,9 +47,10 @@ const listaprecios = {
         "AEROPUERTO CUERNAVACA PICK UP" :         
           470,
         "AIFA" D/O: 240,
-        "AIFA PICK UP: 294,
-    },
+        "AIFA PICK UP: 294
+    }
         
 };
+
 
 
