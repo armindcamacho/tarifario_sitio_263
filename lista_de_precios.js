@@ -47,8 +47,9 @@ const listaprecios = {
         "AEROPUERTO CUERNAVACA PICK UP" :         
           470,
         "AIFA" D/O: 240,
-        "AIFA PICK UP: 294;
-    }
+        "AIFA PICK UP: 294,
+    },
         
 };
+
 
