@@ -1,7 +1,7 @@
 {
   "name": "Sitio 263 Tarifario",
   "short_name": "Sitio 263",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#27ae60",
@@ -9,12 +9,6 @@
     {
       "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "logo.png",
-      "sizes": "192x192",
       "type": "image/png"
     }
   ]
