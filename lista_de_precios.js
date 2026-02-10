@@ -1,4 +1,4 @@
-const listaprecios = {
+const listaPrecios = {
     "ÀGUILAS (PARTE ALTA)": 700,
     "ÀGUILAS (PARTE BAJA)": 650,
     "AJUSCO PARQUE NACIONAL": 1120,
@@ -40,3 +40,4 @@ const listaprecios = {
 
 
 };
+
