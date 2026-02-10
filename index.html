@@ -1,50 +1,92 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tarifador Taxis Ejecutivos</title>
     <style>
+        /* Diseño General */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #eceff1;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            padding: 20px;
         }
+
         .container {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 400px;
-            text-align: center;
         }
-        h2 { color: #2c3e50; margin-bottom: 5px; }
-        p { color: #7f8c8d; font-size: 0.9em; }
-        
-        input {
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Buscador con Filtro */
+        .buscador-container {
+            position: relative;
+            width: 100%;
+        }
+
+        #destinoInput {
             width: 100%;
             padding: 15px;
-            margin: 20px 0 10px 0;
+            font-size: 16px;
             border: 2px solid #dfe6e9;
             border-radius: 10px;
             box-sizing: border-box;
             outline: none;
-            font-size: 16px;
-        }
-        input:focus { border-color: #007bff; }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
+            transition: border-color 0.3s;
         }
 
-        button {
-            flex: 2;
-            padding: 15px;
-            background-color: #007bff;
+        #destinoInput:focus {
+            border-color: #3498db;
+        }
+
+        /* Lista Desplegable Dinámica */
+        .lista-desplegable {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dfe6e9;
+            border-top: none;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .opcion-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f2f6;
+            cursor: pointer;
+            font-size: 15px;
+            color: #2d3436;
+        }
+
+        .opcion-item:active {
+            background-color: #e8f4fd;
+        }
+
+        /* Botón Nueva Consulta */
+        .btn-limpiar {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #34495e;
             color: white;
             border: none;
             border-radius: 10px;
@@ -53,36 +95,37 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        button:hover { background-color: #0056b3; }
 
-        button.btn-limpiar {
-            flex: 1;
-            background-color: #6c757d;
+        .btn-limpiar:active {
+            background-color: #2c3e50;
+            transform: scale(0.98);
         }
-        button.btn-limpiar:hover { background-color: #5a6268; }
 
+        /* Resultado */
         #resultado {
             margin-top: 25px;
-            font-size: 1.3em;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 22px;
             font-weight: bold;
-            min-height: 1.5em;
+            min-height: 30px;
+            color: #27ae60;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🚕 TARIFARIO SITIO 263</h2>
-    <p>Busca tu destino y conoce la tarifa</p>
+    <h2>Tarifas Sitio 263</h2>
     
-    <input type="text" id="destinoInput" list="destinosSugeridos" placeholder="¿A dónde vas?" autocomplete="off">
-    
-    <datalist id="destinosSugeridos"></datalist>
-    
-    <div class="button-group">
-        <button onclick="buscarPrecio()">Consultar</button>
-        <button class="btn-limpiar" onclick="limpiarFormulario()">Limpiar</button>
+    <div class="buscador-container">
+        <input type="text" id="destinoInput" placeholder="Escriba el destino..." autocomplete="off">
+        <div id="listaOpciones" class="lista-desplegable"></div>
     </div>
+    
+    <button class="btn-limpiar" onclick="limpiarConsulta()">Nueva Consulta</button>
 
     <div id="resultado"></div>
 </div>
@@ -90,45 +133,71 @@
 <script src="lista_de_precios.js"></script>
 
 <script>
-    // 1. Cargar sugerencias al inicio
-    const cargarSugerencias = () => {
-        const datalist = document.getElementById('destinosSugeridos');
-        if (typeof listaPrecios !== 'undefined' && datalist) {
-            datalist.innerHTML = ""; // Limpia antes de cargar
-            Object.keys(listaPrecios).forEach(destino => {
-                const opcion = document.createElement('option');
-                opcion.value = destino;
-                datalist.appendChild(opcion);
-            });
+    const input = document.getElementById('destinoInput');
+    const lista = document.getElementById('listaOpciones');
+    const display = document.getElementById('resultado');
+
+    // 1. Lógica de Filtrado en Tiempo Real
+    input.addEventListener('input', () => {
+        const texto = input.value.trim().toUpperCase();
+        lista.innerHTML = ''; 
+        
+        // Verificamos si la variable del archivo .js existe
+        if (typeof listaprecios === 'undefined') {
+            display.innerHTML = "Error: Archivo JS no cargado";
+            return;
         }
-    };
 
-    // 2. Función de búsqueda
-    function buscarPrecio() {
-        const inputElement = document.getElementById('destinoInput');
-        const display = document.getElementById('resultado');
-        const input = inputElement.value.trim().toUpperCase();
+        if (texto.length > 0) {
+            const coincidencias = Object.keys(listaprecios).filter(destino => 
+                destino.includes(texto)
+            );
 
-        if (listaPrecios[input]) {
-            display.innerHTML = `Costo: $${listaPrecios[input]}`;
-            display.style.color = "#27ae60";
+            if (coincidencias.length > 0) {
+                coincidencias.forEach(destino => {
+                    const div = document.createElement('div');
+                    div.textContent = destino;
+                    div.className = 'opcion-item';
+                    
+                    div.onclick = () => {
+                        input.value = destino;
+                        lista.innerHTML = '';
+                        lista.style.display = 'none';
+                        mostrarPrecio(destino);
+                    };
+                    lista.appendChild(div);
+                });
+                lista.style.display = 'block';
+            } else {
+                lista.style.display = 'none';
+            }
         } else {
-            display.innerHTML = "❌ No encontrado";
-            display.style.color = "#e74c3c";
+            lista.style.display = 'none';
+            display.innerHTML = '';
         }
+    });
+
+    // 2. Mostrar Precio
+    function mostrarPrecio(destino) {
+        const precio = listaprecios[destino];
+        display.innerHTML = `Costo: $${precio}`;
     }
 
-    // 3. Función de limpiar (para quitar el error de la consola)
-    function limpiarFormulario() {
-        document.getElementById('destinoInput').value = "";
-        document.getElementById('resultado').innerHTML = "";
-        document.getElementById('destinoInput').focus();
+    // 3. Función Limpiar
+    function limpiarConsulta() {
+        input.value = "";
+        display.innerHTML = "";
+        lista.style.display = 'none';
+        input.focus();
     }
 
-    // Ejecutar al cargar la página
-    window.onload = cargarSugerencias;
+    // Cerrar lista al tocar fuera
+    document.addEventListener('click', (e) => {
+        if (e.target !== input) {
+            lista.style.display = 'none';
+        }
+    });
 </script>
-
 
 </body>
 </html>
