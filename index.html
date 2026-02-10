@@ -41,6 +41,14 @@
         .cargando { color: #f39c12; font-size: 16px; font-style: italic; }
     </style>
 </head>
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+</script>
+
 <body>
 
 <div class="container">
@@ -143,6 +151,7 @@
 
 </body>
 </html>
+
 
 
 
