@@ -41,7 +41,7 @@ const listaprecios = {
 
 
 },
-    "foráneos": {
+    "foraneos": {
         "ACAPULCO": 966,
         "AEROPUERTO CUERNAVACA DROP": 320,
         "AEROPUERTO CUERNAVACA PICK": 470,
@@ -50,6 +50,7 @@ const listaprecios = {
     },
         
 };
+
 
 
 
