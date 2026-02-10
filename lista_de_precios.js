@@ -43,13 +43,14 @@ const listaprecios = {
 },
     "foráneos": {
         "ACAPULCO": 966,
-        "AEROPUERTO CUERNAVACA DO": 320,
-        "AEROPUERTO CUERNAVACA PU": 470,
+        "AEROPUERTO CUERNAVACA DROP": 320,
+        "AEROPUERTO CUERNAVACA PICK": 470,
         "AIFA DROP": 240,
         "AIFA PICK": 294
     }
         
 };
+
 
 
 
