@@ -45,11 +45,12 @@ const listaprecios = {
         "ACAPULCO": 966,
         "AEROPUERTO CUERNAVACA DO": 320,
         "AEROPUERTO CUERNAVACA PU": 470,
-        "AIFA" DO: 240,
-        "AIFA PU: 294
+        "AIFA DO": 240,
+        "AIFA PU": 294
     }
         
 };
+
 
 
 
