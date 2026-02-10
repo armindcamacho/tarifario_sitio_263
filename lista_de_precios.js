@@ -1,4 +1,5 @@
 const listaprecios = {
+    "locales": {
     "ÀGUILAS (PARTE ALTA)": 700,
     "ÀGUILAS (PARTE BAJA)": 650,
     "AJUSCO PARQUE NACIONAL": 1120,
@@ -39,6 +40,15 @@ const listaprecios = {
     "CASA PRIETO LOPEZ (PEDREGAL)": 700.00,
 
 
+},
+    "foráneos": {
+        "ACAPULCO": 966,
+        "AEROPUERTO CUERNAVACA D/O": 320,
+        "AEROPUERTO CUERNAVACA PICK UP" :         
+          470,
+        "AIFA" D/O: 240,
+        "AIFA PICK UP: 294;
+    }
+        
 };
-
 
