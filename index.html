@@ -87,15 +87,15 @@
     <div id="resultado"></div>
 </div>
 
-<script src="./lista_de_precios.js"></script>
+<script src="lista_de_precios.js"></script>
 
 <script>
     // 1. Cargar sugerencias al inicio
     const cargarSugerencias = () => {
         const datalist = document.getElementById('destinosSugeridos');
-        if (typeof listaprecios !== 'undefined' && datalist) {
+        if (typeof listaPrecios !== 'undefined' && datalist) {
             datalist.innerHTML = ""; // Limpia antes de cargar
-            Object.keys(listaprecios).forEach(destino => {
+            Object.keys(listaPrecios).forEach(destino => {
                 const opcion = document.createElement('option');
                 opcion.value = destino;
                 datalist.appendChild(opcion);
@@ -109,8 +109,8 @@
         const display = document.getElementById('resultado');
         const input = inputElement.value.trim().toUpperCase();
 
-        if (listaprecios[input]) {
-            display.innerHTML = `Costo: $${listaprecios[input]}`;
+        if (listaPrecios[input]) {
+            display.innerHTML = `Costo: $${listaPrecios[input]}`;
             display.style.color = "#27ae60";
         } else {
             display.innerHTML = "❌ No encontrado";
@@ -132,5 +132,6 @@
 
 </body>
 </html>
+
 
 
