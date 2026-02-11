@@ -11,28 +11,42 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     <style>
-        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; display: flex; justify-content: center; }
-        .container { background: white; width: 100vw; min-height: 100vh; padding: 20px; box-sizing: border-box; position: relative; }
-        h2 { text-align: center; color: #2c3e50; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f4f7f6; display: flex; justify-content: center; }
+        .container { background: white; width: 100vw; min-height: 100vh; padding: 20px; box-sizing: border-box; position: relative; max-width: 600px; }
+        h2 { text-align: center; color: #2c3e50; margin-top: 10px; }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; background: #ddd; cursor: pointer; }
-        .tab-btn.active { background: #27ae60; color: white; }
+        .tab-btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; background: #e0e0e0; cursor: pointer; transition: 0.3s; font-size: 14px; }
+        .tab-btn.active { background: #27ae60; color: white; box-shadow: 0 4px 10px rgba(39,174,96,0.3); }
 
         .buscador-wrapper { position: relative; width: 100%; }
-        #destinoInput { width: 100%; padding: 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        #destinoInput { width: 100%; padding: 18px; font-size: 16px; border: 2px solid #ddd; border-radius: 12px; box-sizing: border-box; outline: none; transition: border-color 0.3s; }
+        #destinoInput:focus { border-color: #27ae60; }
         
         .lista-desplegable { 
             position: absolute; top: 100%; left: 0; right: 0; 
             background: white; border: 2px solid #27ae60; 
-            max-height: 250px; overflow-y: auto; z-index: 9999; 
-            display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            max-height: 280px; overflow-y: auto; z-index: 9999; 
+            display: none; border-radius: 0 0 12px 12px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
         }
-        .opcion-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 16px; }
+        .opcion-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 16px; color: #333; }
+        .opcion-item:active { background-color: #f1f1f1; }
 
-        .btn-limpiar { width: 100%; margin-top: 15px; padding: 15px; background: #34495e; color: white; border: none; border-radius: 8px; font-weight: bold; }
-        #resultado { margin-top: 20px; text-align: center; padding: 15px; border-radius: 8px; background: #f9f9f9; min-height: 80px; }
-        .precio-mxn { font-size: 32px; color: #27ae60; font-weight: bold; display: block; }
+        .btn-limpiar { width: 100%; margin-top: 15px; padding: 15px; background: #34495e; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 15px; }
+        
+        #resultado { margin-top: 20px; text-align: center; padding: 10px; min-height: 100px; }
+        .precio-mxn { font-size: 36px; color: #27ae60; font-weight: bold; display: block; margin-bottom: 5px; }
+        
+        .btn-maps {
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            background: #4285F4; color: white; text-decoration: none; 
+            padding: 18px; border-radius: 12px; font-weight: bold; font-size: 16px; 
+            margin-top: 15px; box-shadow: 0 4px 12px rgba(66,133,244,0.3);
+            transition: transform 0.2s;
+        }
+        .btn-maps:active { transform: scale(0.98); }
+        
+        .tc-info { background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 13px; color: #666; margin-bottom: 10px; border: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -46,11 +60,12 @@
     </div>
 
     <div class="buscador-wrapper">
-        <input type="text" id="destinoInput" placeholder="Escribe el destino..." autocomplete="off">
+        <input type="text" id="destinoInput" placeholder="Buscando destino..." autocomplete="off">
         <div id="listaOpciones" class="lista-desplegable"></div>
     </div>
     
     <button class="btn-limpiar" onclick="limpiar()">Nueva Consulta</button>
+    
     <div id="resultado"></div>
 </div>
 
@@ -65,53 +80,83 @@
         modoActual = nuevo;
         document.getElementById('btnLocal').classList.toggle('active', modoActual === 'locales');
         document.getElementById('btnForaneo').classList.toggle('active', modoActual === 'foraneos');
+        input.placeholder = modoActual === 'locales' ? "Buscando en Locales..." : "Buscando en Foráneos...";
         limpiar();
     }
 
-    async function obtenerConversion(usd) {
-        display.innerHTML = "Sincronizando...";
+    async function obtenerConversion(precioUSD, destinoNombre) {
+        display.innerHTML = "Consultando tipo de cambio...";
         const hoy = new Date().toLocaleDateString('es-MX');
-        let valor = localStorage.getItem('tc_valor');
-        let fecha = localStorage.getItem('tc_fecha');
+        let tCambio = localStorage.getItem('tc_valor');
+        let fechaCache = localStorage.getItem('tc_fecha');
 
-        if (fecha !== hoy || !valor) {
+        if (fechaCache !== hoy || !tCambio) {
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
                 const data = await res.json();
-                valor = data.rates.MXN;
-                localStorage.setItem('tc_valor', valor);
+                tCambio = data.rates.MXN;
+                localStorage.setItem('tc_valor', tCambio);
                 localStorage.setItem('tc_fecha', hoy);
-            } catch(e) { valor = valor || 17.50; }
+            } catch (e) {
+                tCambio = tCambio || 18.00; // Respaldo por si no hay internet
+            }
         }
+
+        const totalMXN = (precioUSD * tCambio).toFixed(2);
+        mostrarResultadoFinal(totalMXN, tCambio, hoy, destinoNombre);
+    }
+
+    function mostrarResultadoFinal(total, tc, fecha, destino) {
+        const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino)}`;
         
-        const total = (usd * valor).toFixed(2);
-        display.innerHTML = `<span class="precio-mxn">$${total} MXN</span>
-                             <small>Dólar fijado hoy: ${parseFloat(valor).toFixed(2)}</small>`;
+        let detalleTC = tc > 0 
+            ? `<div class="tc-info"><strong>T.C. del día:</strong> $${parseFloat(tc).toFixed(2)} (${fecha})</div>`
+            : '';
+
+        display.innerHTML = `
+            <div><span class="precio-mxn">$${new Intl.NumberFormat('es-MX').format(total)} MXN</span></div>
+            ${detalleTC}
+            <a href="${urlMaps}" target="_blank" class="btn-maps">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                VER RUTA EN MAPS
+            </a>
+        `;
     }
 
     input.addEventListener('input', () => {
         const busqueda = input.value.toUpperCase();
         lista.innerHTML = '';
-        if (!busqueda || typeof listaprecios === 'undefined') { lista.style.display = 'none'; return; }
+        
+        if (!busqueda || typeof listaprecios === 'undefined') {
+            lista.style.display = 'none';
+            return;
+        }
 
         const datos = listaprecios[modoActual];
-        const coinciden = Object.keys(datos).filter(d => d.includes(busqueda));
+        const coincidencias = Object.keys(datos).filter(d => d.includes(busqueda));
 
-        if (coinciden.length > 0) {
-            coinciden.forEach(d => {
+        if (coincidencias.length > 0) {
+            coincidencias.forEach(d => {
                 const item = document.createElement('div');
                 item.className = 'opcion-item';
                 item.textContent = d;
                 item.onclick = () => {
                     input.value = d;
                     lista.style.display = 'none';
-                    if (modoActual === 'foraneos') obtenerConversion(datos[d]);
-                    else display.innerHTML = `<span class="precio-mxn">$${datos[d]} MXN</span>`;
+                    if (modoActual === 'foraneos') {
+                        obtenerConversion(datos[d], d);
+                    } else {
+                        mostrarResultadoFinal(datos[d], 0, "", d);
+                    }
                 };
                 lista.appendChild(item);
             });
             lista.style.display = 'block';
-        } else { lista.style.display = 'none'; }
+        } else {
+            lista.style.display = 'none';
+        }
     });
 
     function limpiar() {
@@ -121,13 +166,16 @@
         input.focus();
     }
 
-    // Cerrar lista si tocas fuera
+    // Cerrar lista al tocar fuera
     document.addEventListener('click', (e) => {
         if (!input.contains(e.target)) lista.style.display = 'none';
     });
 </script>
+
 </body>
 </html>
+
+
 
 
 
