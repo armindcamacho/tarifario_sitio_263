@@ -92,28 +92,42 @@
 
     // Función para obtener el tipo de cambio real
     async function obtenerPrecioConvertido(precioUSD) {
-    display.innerHTML = '<span class="cargando">Consultando tipo interbancario actual...</span>';
+    display.innerHTML = '<span class="cargando">Verificando tipo de cambio del día...</span>';
+    
+    const hoy = new Date().toLocaleDateString('es-MX'); // Ejemplo: "10/02/2026"
+    let tCambio = localStorage.getItem('tc_valor');
+    let fechaCache = localStorage.getItem('tc_fecha');
+
     try {
-        // Usamos el endpoint de 'latest' que nos da el interbancario del momento
-        const respuesta = await fetch(`https://open.er-api.com/v6/latest/USD?nocache=${new Date().getTime()}`);
-        const datos = await respuesta.json();
-        
-        // El valor 'MXN' aquí es el tipo de cambio interbancario
-        const tCambio = datos.rates.MXN;
+        // Si no tenemos el precio de hoy guardado, lo buscamos en internet
+        if (fechaCache !== hoy || !tCambio) {
+            const respuesta = await fetch(`https://open.er-api.com/v6/latest/USD`);
+            const datos = await respuesta.json();
+            tCambio = datos.rates.MXN;
+            
+            // Guardamos en la memoria del celular para todo el día
+            localStorage.setItem('tc_valor', tCambio);
+            localStorage.setItem('tc_fecha', hoy);
+            console.log("Tipo de cambio actualizado para el día: " + hoy);
+        }
+
         const totalMXN = (precioUSD * tCambio).toFixed(2);
+        const horaConsulta = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
         display.innerHTML = `
-            <div style="border-bottom: 2px solid #27ae60; margin-bottom: 10px; padding-bottom: 10px;">
+            <div style="margin-bottom: 10px;">
                 <span class="precio-mxn">$${new Intl.NumberFormat('es-MX').format(totalMXN)} MXN</span>
             </div>
-            <span class="detalle-cambio">Precio Base: $${precioUSD} USD</span>
-            <span class="detalle-cambio">T.C. Interbancario: <strong>${tCambio.toFixed(4)}</strong></span>
-            <span style="font-size: 10px; color: #95a5a6; display: block; margin-top: 5px;">Actualizado: ${new Date().toLocaleTimeString()}</span>
+            <div style="background: #f1f2f6; padding: 10px; border-radius: 8px; font-size: 13px; color: #2f3542;">
+                <p style="margin: 5px 0;"><strong>Dólar fijado hoy (${hoy}):</strong> $${parseFloat(tCambio).toFixed(4)}</p>
+                <p style="margin: 5px 0; font-size: 11px; color: #747d8c;">Tarifa calculada a las: ${horaConsulta}</p>
+            </div>
         `;
     } catch (error) {
-        display.innerHTML = `<span style="color:red">Error al obtener el tipo de cambio del día.</span>`;
+        display.innerHTML = `<span style="color:red">Error al sincronizar tarifa diaria.</span>`;
     }
 }
+
   
 
     function limpiarConsulta() {
@@ -130,6 +144,7 @@
 
 </body>
 </html>
+
 
 
 
