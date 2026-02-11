@@ -92,56 +92,29 @@
 
     // Función para obtener el tipo de cambio real
     async function obtenerPrecioConvertido(precioUSD) {
-        display.innerHTML = '<span class="cargando">Consultando tipo de cambio...</span>';
-        try {
-            // Llamada a la API de tipo de cambio
-            const respuesta = await fetch('https://open.er-api.com/v6/latest/USD');
-            const datos = await respuesta.json();
-            const tCambio = datos.rates.MXN;
-            const totalMXN = (precioUSD * tCambio).toFixed(2);
-
-            display.innerHTML = `
-                <span class="precio-mxn">$${totalMXN} MXN</span>
-                <span class="detalle-cambio">Precio: $${precioUSD} USD | T.C: ${tCambio.toFixed(2)}</span>
-            `;
-        } catch (error) {
-            display.innerHTML = `<span style="color:red">Error al obtener tipo de cambio. Intenta de nuevo.</span>`;
-        }
-    }
-
-    input.addEventListener('input', () => {
-        const texto = input.value.trim().toUpperCase();
-        lista.innerHTML = ''; 
+    display.innerHTML = '<span class="cargando">Consultando tipo interbancario actual...</span>';
+    try {
+        // Usamos el endpoint de 'latest' que nos da el interbancario del momento
+        const respuesta = await fetch(`https://open.er-api.com/v6/latest/USD?nocache=${new Date().getTime()}`);
+        const datos = await respuesta.json();
         
-        if (typeof listaprecios === 'undefined') return;
-        const baseDeDatos = listaprecios[modoActual];
+        // El valor 'MXN' aquí es el tipo de cambio interbancario
+        const tCambio = datos.rates.MXN;
+        const totalMXN = (precioUSD * tCambio).toFixed(2);
 
-        if (texto.length > 0) {
-            const coincidencias = Object.keys(baseDeDatos).filter(destino => destino.includes(texto));
-
-            coincidencias.forEach(destino => {
-                const div = document.createElement('div');
-                div.textContent = destino;
-                div.className = 'opcion-item';
-                div.onclick = () => {
-                    input.value = destino;
-                    lista.style.display = 'none';
-                    const precio = baseDeDatos[destino];
-
-                    if (modoActual === 'foraneos') {
-                        obtenerPrecioConvertido(precio);
-                    } else {
-                        display.innerHTML = `<span class="precio-mxn">$${precio} MXN</span>`;
-                    }
-                };
-                lista.appendChild(div);
-            });
-            lista.style.display = coincidencias.length > 0 ? 'block' : 'none';
-        } else {
-            lista.style.display = 'none';
-            display.innerHTML = '';
-        }
-    });
+        display.innerHTML = `
+            <div style="border-bottom: 2px solid #27ae60; margin-bottom: 10px; padding-bottom: 10px;">
+                <span class="precio-mxn">$${new Intl.NumberFormat('es-MX').format(totalMXN)} MXN</span>
+            </div>
+            <span class="detalle-cambio">Precio Base: $${precioUSD} USD</span>
+            <span class="detalle-cambio">T.C. Interbancario: <strong>${tCambio.toFixed(4)}</strong></span>
+            <span style="font-size: 10px; color: #95a5a6; display: block; margin-top: 5px;">Actualizado: ${new Date().toLocaleTimeString()}</span>
+        `;
+    } catch (error) {
+        display.innerHTML = `<span style="color:red">Error al obtener el tipo de cambio del día.</span>`;
+    }
+}
+  
 
     function limpiarConsulta() {
         input.value = "";
@@ -157,6 +130,7 @@
 
 </body>
 </html>
+
 
 
 
