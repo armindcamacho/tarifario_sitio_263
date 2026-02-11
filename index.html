@@ -2,60 +2,39 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width,
-        initial-scale=1.0,
-        maximum-scale=1.0,
-        user-scalable=no,
-        viewport-fit=cover">
-    <link rel="manifest" href="manifest.json">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tarifario Sitio 263</title>
     <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 
-<link rel="apple-touch-icon" href="logo.png">
-
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Sitio 263">
-
-<link rel="manifest" href="manifest.json">
-
-    <title>Tarifador Pro - Sitio 263</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { background-color: white; padding: 20px; border-radius: 10px; width: 100vw; min-height: 100vh; box-sizing: border-box;}
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; font-size: 22px; }
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; display: flex; justify-content: center; }
+        .container { background: white; width: 100vw; min-height: 100vh; padding: 20px; box-sizing: border-box; position: relative; }
+        h2 { text-align: center; color: #2c3e50; }
 
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background-color: #dfe6e9; color: #636e72; transition: 0.3s; }
-        .tab-btn.active { background-color: #27ae60; color: white; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; background: #ddd; cursor: pointer; }
+        .tab-btn.active { background: #27ae60; color: white; }
 
-        .buscador-container { position: relative; width: 100%; }
-        #destinoInput { width: 100%; padding: 15px; font-size: 16px; border: 2px solid #dfe6e9; border-radius: 10px; box-sizing: border-box; outline: none; }
+        .buscador-wrapper { position: relative; width: 100%; }
+        #destinoInput { width: 100%; padding: 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         
-        .lista-desplegable { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #27ae60; max-height: 250px; overflow-y: auto; z-index: 9999; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0,2); 
-                           }
-        .opcion-item { padding: 12px 15px; border-bottom: 1px solid #f1f2f6; cursor: pointer; font-size: 15px; }
-        .opcion-item:active { background-color: #e8f4fd; }
+        .lista-desplegable { 
+            position: absolute; top: 100%; left: 0; right: 0; 
+            background: white; border: 2px solid #27ae60; 
+            max-height: 250px; overflow-y: auto; z-index: 9999; 
+            display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
+        .opcion-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 16px; }
 
-        .btn-limpiar { width: 100%; margin-top: 15px; padding: 12px; background-color: #34495e; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
-        /* Estilo del Resultado */
-        #resultado { margin-top: 25px; padding: 15px; background-color: #f9f9f9; border-radius: 10px; text-align: center; min-height: 60px; border: 1px solid #eee; }
-        .precio-mxn { display: block; font-size: 28px; color: #27ae60; font-weight: bold; }
-        .detalle-cambio { display: block; font-size: 13px; color: #7f8c8d; margin-top: 5px; }
-        .cargando { color: #f39c12; font-size: 16px; font-style: italic; }
+        .btn-limpiar { width: 100%; margin-top: 15px; padding: 15px; background: #34495e; color: white; border: none; border-radius: 8px; font-weight: bold; }
+        #resultado { margin-top: 20px; text-align: center; padding: 15px; border-radius: 8px; background: #f9f9f9; min-height: 80px; }
+        .precio-mxn { font-size: 32px; color: #27ae60; font-weight: bold; display: block; }
     </style>
 </head>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js');
-    });
-  }
-</script>
-
 <body>
 
 <div class="container">
@@ -66,102 +45,89 @@
         <button id="btnForaneo" class="tab-btn" onclick="cambiarModo('foraneos')">FORÁNEO (USD)</button>
     </div>
 
-    <div class="buscador-container">
-        <input type="text" id="destinoInput" placeholder="Buscando en Locales..." autocomplete="off">
+    <div class="buscador-wrapper">
+        <input type="text" id="destinoInput" placeholder="Escribe el destino..." autocomplete="off">
         <div id="listaOpciones" class="lista-desplegable"></div>
     </div>
     
-    <button class="btn-limpiar" onclick="limpiarConsulta()">Nueva Consulta</button>
+    <button class="btn-limpiar" onclick="limpiar()">Nueva Consulta</button>
     <div id="resultado"></div>
 </div>
 
 <script src="lista_de_precios.js"></script>
-
 <script>
     let modoActual = 'locales';
     const input = document.getElementById('destinoInput');
     const lista = document.getElementById('listaOpciones');
     const display = document.getElementById('resultado');
 
-    function cambiarModo(nuevoModo) {
-        modoActual = nuevoModo;
+    function cambiarModo(nuevo) {
+        modoActual = nuevo;
         document.getElementById('btnLocal').classList.toggle('active', modoActual === 'locales');
         document.getElementById('btnForaneo').classList.toggle('active', modoActual === 'foraneos');
-        input.placeholder = `Buscando en ${modoActual === 'locales' ? 'Locales' : 'Foráneos'}...`;
-        limpiarConsulta();
+        limpiar();
     }
 
-    // Función para obtener el tipo de cambio real a las 12 am del dia en curso 
-async function obtenerPrecioConvertido(precioUSD) {
-    display.innerHTML = '<span class="cargando">Sincronizando tarifa diaria...</span>';
-    
-    const hoy = new Date().toLocaleDateString('es-MX');
-    let tCambioGuardado = localStorage.getItem('dolar_valor');
-    let fechaGuardada = localStorage.getItem('dolar_fecha');
+    async function obtenerConversion(usd) {
+        display.innerHTML = "Sincronizando...";
+        const hoy = new Date().toLocaleDateString('es-MX');
+        let valor = localStorage.getItem('tc_valor');
+        let fecha = localStorage.getItem('tc_fecha');
 
-    try {
-        let tCambio;
-
-        // Solo descarga de internet si es un día nuevo
-        if (fechaGuardada !== hoy || !tCambioGuardado) {
-            const respuesta = await fetch(`https://open.er-api.com/v6/latest/USD`);
-            const datos = await respuesta.json();
-            tCambio = datos.rates.MXN;
-
-            // Guardamos localmente para no volver a consultar hoy
-            localStorage.setItem('dolar_valor', tCambio);
-            localStorage.setItem('dolar_fecha', hoy);
-        } else {
-            tCambio = parseFloat(tCambioGuardado);
+        if (fecha !== hoy || !valor) {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                valor = data.rates.MXN;
+                localStorage.setItem('tc_valor', valor);
+                localStorage.setItem('tc_fecha', hoy);
+            } catch(e) { valor = valor || 17.50; }
         }
-
-        const totalMXN = (precioUSD * tCambio).toFixed(2);
-
-        display.innerHTML = `
-            <div style="margin-bottom: 8px;">
-                <span class="precio-mxn">$${new Intl.NumberFormat('es-MX').format(totalMXN)} MXN</span>
-            </div>
-            <div style="background: #f1f2f6; padding: 10px; border-radius: 8px; font-size: 12px;">
-                <strong>T.C. del día (${hoy}):</strong> $${tCambio.toFixed(2)}
-            </div>
-        `;
-    } catch (error) {
-        display.innerHTML = `<span style="color:red">Sin conexión. Usando última tarifa guardada.</span>`;
+        
+        const total = (usd * valor).toFixed(2);
+        display.innerHTML = `<span class="precio-mxn">$${total} MXN</span>
+                             <small>Dólar fijado hoy: ${parseFloat(valor).toFixed(2)}</small>`;
     }
-}
 
-        display.innerHTML = `
-            <div style="margin-bottom: 10px;">
-                <span class="precio-mxn">$${new Intl.NumberFormat('es-MX').format(totalMXN)} MXN</span>
-            </div>
-            <div style="background: #f1f2f6; padding: 10px; border-radius: 8px; font-size: 13px; color: #2f3542;">
-                <p style="margin: 5px 0;"><strong>Dólar fijado hoy (${hoy}):</strong> $${parseFloat(tCambio).toFixed(4)}</p>
-                <p style="margin: 5px 0; font-size: 11px; color: #747d8c;">Tarifa calculada a las: ${horaConsulta}</p>
-            </div>
-        `;
-    } catch (error) {
-        display.innerHTML = `<span style="color:red">Error al sincronizar tarifa diaria.</span>`;
-    }
-}
+    input.addEventListener('input', () => {
+        const busqueda = input.value.toUpperCase();
+        lista.innerHTML = '';
+        if (!busqueda || typeof listaprecios === 'undefined') { lista.style.display = 'none'; return; }
 
-  
+        const datos = listaprecios[modoActual];
+        const coinciden = Object.keys(datos).filter(d => d.includes(busqueda));
 
-    function limpiarConsulta() {
-        input.value = "";
-        display.innerHTML = "";
+        if (coinciden.length > 0) {
+            coinciden.forEach(d => {
+                const item = document.createElement('div');
+                item.className = 'opcion-item';
+                item.textContent = d;
+                item.onclick = () => {
+                    input.value = d;
+                    lista.style.display = 'none';
+                    if (modoActual === 'foraneos') obtenerConversion(datos[d]);
+                    else display.innerHTML = `<span class="precio-mxn">$${datos[d]} MXN</span>`;
+                };
+                lista.appendChild(item);
+            });
+            lista.style.display = 'block';
+        } else { lista.style.display = 'none'; }
+    });
+
+    function limpiar() {
+        input.value = '';
+        display.innerHTML = '';
         lista.style.display = 'none';
         input.focus();
     }
 
+    // Cerrar lista si tocas fuera
     document.addEventListener('click', (e) => {
-        if (e.target !== input) lista.style.display = 'none';
+        if (!input.contains(e.target)) lista.style.display = 'none';
     });
 </script>
-
 </body>
 </html>
-
-
 
 
 
