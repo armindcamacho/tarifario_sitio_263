@@ -90,29 +90,44 @@
         limpiarConsulta();
     }
 
-    // Función para obtener el tipo de cambio real
-    async function obtenerPrecioConvertido(precioUSD) {
-    display.innerHTML = '<span class="cargando">Verificando tipo de cambio del día...</span>';
+    // Función para obtener el tipo de cambio real a las 12 am del dia en curso 
+async function obtenerPrecioConvertido(precioUSD) {
+    display.innerHTML = '<span class="cargando">Sincronizando tarifa diaria...</span>';
     
-    const hoy = new Date().toLocaleDateString('es-MX'); // Ejemplo: "10/02/2026"
-    let tCambio = localStorage.getItem('tc_valor');
-    let fechaCache = localStorage.getItem('tc_fecha');
+    const hoy = new Date().toLocaleDateString('es-MX');
+    let tCambioGuardado = localStorage.getItem('dolar_valor');
+    let fechaGuardada = localStorage.getItem('dolar_fecha');
 
     try {
-        // Si no tenemos el precio de hoy guardado, lo buscamos en internet
-        if (fechaCache !== hoy || !tCambio) {
+        let tCambio;
+
+        // Solo descarga de internet si es un día nuevo
+        if (fechaGuardada !== hoy || !tCambioGuardado) {
             const respuesta = await fetch(`https://open.er-api.com/v6/latest/USD`);
             const datos = await respuesta.json();
             tCambio = datos.rates.MXN;
-            
-            // Guardamos en la memoria del celular para todo el día
-            localStorage.setItem('tc_valor', tCambio);
-            localStorage.setItem('tc_fecha', hoy);
-            console.log("Tipo de cambio actualizado para el día: " + hoy);
+
+            // Guardamos localmente para no volver a consultar hoy
+            localStorage.setItem('dolar_valor', tCambio);
+            localStorage.setItem('dolar_fecha', hoy);
+        } else {
+            tCambio = parseFloat(tCambioGuardado);
         }
 
         const totalMXN = (precioUSD * tCambio).toFixed(2);
-        const horaConsulta = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+        display.innerHTML = `
+            <div style="margin-bottom: 8px;">
+                <span class="precio-mxn">$${new Intl.NumberFormat('es-MX').format(totalMXN)} MXN</span>
+            </div>
+            <div style="background: #f1f2f6; padding: 10px; border-radius: 8px; font-size: 12px;">
+                <strong>T.C. del día (${hoy}):</strong> $${tCambio.toFixed(2)}
+            </div>
+        `;
+    } catch (error) {
+        display.innerHTML = `<span style="color:red">Sin conexión. Usando última tarifa guardada.</span>`;
+    }
+}
 
         display.innerHTML = `
             <div style="margin-bottom: 10px;">
@@ -144,6 +159,7 @@
 
 </body>
 </html>
+
 
 
 
